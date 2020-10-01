@@ -1,14 +1,71 @@
-import React from 'react'
+import { Avatar, IconButton } from '@material-ui/core'
+import { AttachFile, MoreVert, SearchOutlined } from '@material-ui/icons'
+import React, { useState } from 'react'
 import './Chat.css'
+import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon'
+import MicIcon from '@material-ui/icons/Mic'
+import axios from './axios'
 
-function Chat() {
+function Chat({ messages }) {
+
+  const [input, setInput] = useState('');
+  const sendMessage = async e => {
+    e.preventDefault();
+    await axios.post('http://localhost:9000/message/new', {
+      message: input,
+      name: 'Demo User',
+      timestamp: new Date(),
+      received: false
+    });
+    setInput('')
+  }
   return (
     <div className="chat">
       <div className="chat__header">
+        <Avatar />
+        <div className="chat__headerInfo">
+          <h3>Room Name</h3>
+          <p>Last seen at ...</p>
+        </div>
+        <div className="chat__headerRight">
+          <IconButton>
+            <SearchOutlined />
+          </IconButton>
+          <IconButton>
+            <AttachFile />
+          </IconButton>
+          <IconButton>
+            <MoreVert />
+          </IconButton>
+        </div>
       </div>
       <div className="chat__body">
+        {messages.map((msg) => (
+          <p className={`chat__message ${msg.received && 'chat__reciever'}`}>
+            <span className="chat__name">{msg.name}</span>
+            {msg.message}
+            <span className="chat__timestamp">
+              {msg.timestamp}
+            </span>
+          </p>
+        ))}
       </div>
       <div className="chat__footer">
+        <InsertEmoticonIcon />
+        <form>
+          <input
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="Type a message"
+            type="text"
+          />
+          <button
+            onClick={sendMessage}
+            type="submit">
+            Send a message
+          </button>
+        </form>
+        <MicIcon />
       </div>
     </div>
   )
